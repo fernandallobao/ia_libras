@@ -1,87 +1,79 @@
 import cv2
 import mediapipe as mp
 import servo_braco3d as mao
-from libras_app import DetectorLibras  # <--- NOVA IMPORTAÇÃO
+import numpy as np
+from tensorflow.keras.models import load_model
 
-# cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
 cap = cv2.VideoCapture(0)
-
 cap.set(3, 640)
 cap.set(4, 480)
 
 hands = mp.solutions.hands
 Hands = hands.Hands(max_num_hands=1)
-mpDwaw = mp.solutions.drawing_utils
+mpDraw = mp.solutions.drawing_utils
 
-# <--- INICIALIZAÇÃO DO DETECTOR DE LIBRAS
-detector_libras = DetectorLibras()
+classes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 
+                       'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 
+                       'W', 'X', 'Y', 'Z']
+model = load_model('keras_model.h5')  # ESPERAR P ARQUIVO CERTO
+data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+
 
 while True:
     success, img = cap.read()
     if not success or img is None:
         print("Erro: Não foi possível capturar a imagem da câmera!")
         continue
-    
-    # <--- DETECÇÃO DE LIBRAS (ADICIONADO ANTES DA DETECÇÃO DE MÃO)
-    img, letra = detector_libras.detectar_letra(img)
-    
-    # Controle do braço robótico baseado em Libras
-    if letra == 'A':
-        mao.abrir_fechar(10, 1)  # Exemplo: polegar aberto
-    elif letra == 'B':
-        mao.abrir_fechar(9, 1)   # Exemplo: indicador aberto
-    elif letra == 'C':
-        mao.abrir_fechar(8, 1)   # Exemplo: médio aberto
-    # Adicione mais letras conforme necessário
-    
-    # Processamento original de mão (mantido para compatibilidade)
-    frameRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    frameRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
     results = Hands.process(frameRGB)
-    handPoints = results.multi_hand_landmarks
+    handsPoints = results.multi_hand_landmarks
     h, w, _ = img.shape
+
     pontos = []
-    
-    if handPoints:
-        for points in handPoints:
-            mpDwaw.draw_landmarks(img, points, hands.HAND_CONNECTIONS)
+    if handsPoints:
+        for points in handsPoints:
+            mpDraw.draw_landmarks(img, points,hands.HAND_CONNECTIONS)
+            #podemos enumerar esses pontos da seguinte forma
             for id, cord in enumerate(points.landmark):
                 cx, cy = int(cord.x * w), int(cord.y * h)
-                cv2.circle(img, (cx, cy), 4, (255, 0, 0), -1)
-                pontos.append((cx, cy))
+                # cv2.putText(img, str(id), (cx, cy + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                cv2.circle(img,(cx,cy),4,(255,0,0),-1)
+                pontos.append((cx,cy))
+                
+            if handsPoints != None:
+                for hand in handsPoints:
+                    x_max = 0
+                    y_max = 0
+                    x_min = w
+                    y_min = h
+                    for lm in hand.landmark:
+                        x, y = int(lm.x * w), int(lm.y * h)
+                        if x > x_max:
+                            x_max = x
+                        if x < x_min:
+                            x_min = x
+                        if y > y_max:
+                            y_max = y
+                        if y < y_min:
+                            y_min = y
+                    cv2.rectangle(img, (x_min-50, y_min-50), (x_max+50, y_max+50), (0, 255, 0), 2)
 
-            if pontos:
-                distPolegar = abs(pontos[17][0] - pontos[4][0])
-                distIndicador = pontos[5][1] - pontos[8][1]
-                distMedio = pontos[9][1] - pontos[12][1]
-                distAnelar = pontos[13][1] - pontos[16][1]
-                distMinimo = pontos[17][1] - pontos[20][1]
+                    try:
+                        imgCrop = img[y_min-50:y_max+50,x_min-50:x_max+50]
+                        imgCrop = cv2.resize(imgCrop,(224,224))
+                        imgArray = np.asarray(imgCrop)
+                        normalized_image_array = (imgArray.astype(np.float32) / 127.0) - 1
+                        data[0] = normalized_image_array
+                        prediction = model.predict(data)
+                        indexVal = np.argmax(prediction)
+                        #print(classes[indexVal])
+                        cv2.putText(img,classes[indexVal],(x_min-50,y_min-65),cv2.FONT_HERSHEY_COMPLEX,3,(0,0,255),5)
 
-                if distPolegar < 80:
-                    mao.abrir_fechar(10, 0)
-                else:
-                    mao.abrir_fechar(10, 1)
-
-                if distIndicador >= 1:
-                    mao.abrir_fechar(9, 1)
-                else:
-                    mao.abrir_fechar(9, 0)
-
-                if distMedio >= 1:
-                    mao.abrir_fechar(8, 1)
-                else:
-                    mao.abrir_fechar(8, 0)
-
-                if distAnelar >= 1:
-                    mao.abrir_fechar(7, 1)
-                else:
-                    mao.abrir_fechar(7, 0)
-
-                if distMinimo >= 1:
-                    mao.abrir_fechar(6, 1)
-                else:
-                    mao.abrir_fechar(6, 0)
-
-    cv2.imshow('Imagem', img)
+                    except:
+                        continue
+    
+    cv2.imshow('Reconhecimento de Libras', img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
