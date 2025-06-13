@@ -9,8 +9,8 @@ class DetectorLibras:
         self.classes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 
                        'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 
                        'W', 'X', 'Y', 'Z']
-        self.model = load_model('keras_model.h5')  # ESPERAR P ARQUIVO CERTO
-        self.data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32) #Prepara um array numpy no formato que o modelo espera (1 imagem 224x224 RGB)
+        self.model = load_model('./analise/keras_model.h5')  # ESPERAR P ARQUIVO CERTO
+        self.data = np.ndarray(shape=(1, 64, 64, 3), dtype=np.float32) #Prepara um array numpy no formato que o modelo espera (1 imagem 224x224 RGB)
         self.letra_detectada = None #Variável para armazenar a última letra detectada
 
     def detectar_letra(self, img):
