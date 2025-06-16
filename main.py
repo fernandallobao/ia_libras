@@ -17,7 +17,7 @@ mpDraw = mp.solutions.drawing_utils
 classes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
 
 # Carregar o modelo
-model = load_model('./analise/modelo_libras2.h5')
+model = load_model('./analise/keras_model.h5')
 
 # Preparar array de dados - MODIFICAÇÃO IMPORTANTE AQUI
 data = np.ndarray(shape=(1, 64, 64, 3), dtype=np.float32)
