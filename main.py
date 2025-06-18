@@ -52,10 +52,10 @@ while True:
                 x_max, x_min = max(x, x_max), min(x, x_min)
                 y_max, y_min = max(y, y_max), min(y, y_min)
                 
-            cv2.rectangle(img, (x_min-70, y_min-70), (x_max+70, y_max+70), (0, 255, 0), 2)
+            cv2.rectangle(img, (x_min-40, y_min-40), (x_max+50, y_max+50), (0, 255, 0), 2)
             
             # Ajuste das coordenadas para não sair da imagem
-            x1, y1 = max(x_min - 50, 0), max(y_min - 50, 0)
+            x1, y1 = max(x_min - 40, 0), max(y_min - 40, 0)
             x2, y2 = min(x_max + 50, w), min(y_max + 50, h)
             
             if x2 - x1 > 0 and y2 - y1 > 0:
@@ -64,16 +64,17 @@ while True:
                     imgCrop = cv2.resize(imgCrop, (224, 224))
                     
                     # Pré-processamento da imagem
-                    imgArray = np.asarray(imgCrop)
-                    normalized_image_array = (imgArray.astype(np.float32) / 127.0) - 1
+                    imgArray = np.asarray(imgCrop) /255
+                    # normalized_image_array = (imgArray.astype(np.float32) / 127.0) - 1
                     
                     # Verificação adicional do shape
-                    if normalized_image_array.shape != (224, 224, 3):
-                        print(f"Shape incorreto: {normalized_image_array.shape}")
-                        continue
+                    # if normalized_image_array.shape != (224, 224, 3):
+                    #     print(f"Shape incorreto: {normalized_image_array.shape}")
+                    #     continue
                         
-                    data[0] = normalized_image_array
-                    prediction = model.predict(data, verbose=0)
+                    # data[0] = imgArray
+                    imgArray = imgArray.reshape(1,224,224,3)
+                    prediction = model.predict(imgArray, verbose=0)
                     
                     # Verificação da predição
                     if prediction.size == 0:
