@@ -14,13 +14,13 @@ Hands = hands.Hands(max_num_hands=1)
 mpDraw = mp.solutions.drawing_utils
 
 # Classes do modelo
-classes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
+classes = ['A', 'E', 'I', 'O', 'U']
 
 # Carregar o modelo
-model = load_model('./analise/keras_model.h5')
+model = load_model('./analise/modelo3.h5')
 
 # Preparar array de dados - MODIFICAÇÃO IMPORTANTE AQUI
-data = np.ndarray(shape=(1, 64, 64, 3), dtype=np.float32)
+data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
 while True:
     success, img = cap.read()
@@ -52,7 +52,7 @@ while True:
                 x_max, x_min = max(x, x_max), min(x, x_min)
                 y_max, y_min = max(y, y_max), min(y, y_min)
                 
-            cv2.rectangle(img, (x_min-50, y_min-50), (x_max+50, y_max+50), (0, 255, 0), 2)
+            cv2.rectangle(img, (x_min-70, y_min-70), (x_max+70, y_max+70), (0, 255, 0), 2)
             
             # Ajuste das coordenadas para não sair da imagem
             x1, y1 = max(x_min - 50, 0), max(y_min - 50, 0)
@@ -61,14 +61,14 @@ while True:
             if x2 - x1 > 0 and y2 - y1 > 0:
                 try:
                     imgCrop = img[y1:y2, x1:x2]
-                    imgCrop = cv2.resize(imgCrop, (64, 64))
+                    imgCrop = cv2.resize(imgCrop, (224, 224))
                     
                     # Pré-processamento da imagem
                     imgArray = np.asarray(imgCrop)
                     normalized_image_array = (imgArray.astype(np.float32) / 127.0) - 1
                     
                     # Verificação adicional do shape
-                    if normalized_image_array.shape != (64, 64, 3):
+                    if normalized_image_array.shape != (224, 224, 3):
                         print(f"Shape incorreto: {normalized_image_array.shape}")
                         continue
                         
