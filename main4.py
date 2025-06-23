@@ -35,48 +35,48 @@ while True:
 
             if len(pontos) == 21:
                 # Calculando as distâncias dos dedos (em Y ou X, conforme o dedo)
-                distPolegar = abs(pontos[4][0] - pontos[3][0])  # lateral (X)
-                distIndicador = pontos[6][1] - pontos[8][1]
-                distMedio = pontos[10][1] - pontos[12][1]
-                distAnelar = pontos[14][1] - pontos[16][1]
-                distMinimo = pontos[18][1] - pontos[20][1]
+                distPolegar = abs(pontos[17][0] - pontos[4][0])  # lateral (X)
+                distIndicador = pontos[5][1] - pontos[8][1]
+                distMedio = pontos[9][1] - pontos[12][1]
+                distAnelar = pontos[13][1] - pontos[16][1]
+                distMinimo = pontos[17][1] - pontos[20][1]
 
                 letra = None
 
                 # Regras com base nas distâncias
-                if (distPolegar < 30 and
-                    distIndicador < 10 and
-                    distMedio < 10 and
-                    distAnelar < 10 and
-                    distMinimo < 10):
+                if (distPolegar < 70 and
+                    distIndicador < -30 and
+                    distMedio < -30 and
+                    distAnelar < -30 and
+                    distMinimo < -30):
                     letra = 'A'
 
                 elif (distPolegar < 30 and
-                      10 <= distIndicador <= 20 and
-                      10 <= distMedio <= 20 and
-                      10 <= distAnelar <= 20 and
-                      10 <= distMinimo <= 20):
+                      0 <= distIndicador <= 10 and
+                      0 <= distMedio <= 10 and
+                      0 <= distAnelar <= 10 and
+                      0 <= distMinimo <= 10):
                     letra = 'E'
 
                 elif (distPolegar < 30 and
-                      distIndicador < 10 and
-                      distMedio < 10 and
-                      distAnelar < 10 and
-                      distMinimo > 20):
+                      distIndicador < 0 and
+                      distMedio < 0 and
+                      distAnelar < 0 and
+                      distMinimo > 90):
                     letra = 'I'
 
-                elif (distPolegar > 90 and
+                elif (distPolegar > 50 and
                       distIndicador < 20 and
                       distMedio < 20 and
                       distAnelar < 20 and
                       distMinimo < 20):
                     letra = 'O'
 
-                elif (distPolegar > 30 and
-                      distIndicador < 20 and
-                      distMedio < 20 and
-                      distAnelar < 10 and
-                      distMinimo > 10):
+                elif (distPolegar > 10 and
+                      distIndicador > 80 and
+                      distMedio > 80 and
+                      distAnelar < 0 and
+                      distMinimo < 0):
                     letra = 'U'
 
                 if letra:
